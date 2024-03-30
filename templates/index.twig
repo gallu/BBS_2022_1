@@ -1,0 +1,66 @@
+{#  index.twig  #}
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>BBS</title>
+  </head>
+  <body>
+    <h1>BBS</h1>
+
+    {% if error.body_must == true %}
+    <div>本文は必須です。</div>
+    {% endif %}
+    {% if error.write == true %}
+    <div>書き込みに失敗しました。</div>
+    {% endif %}
+    {% if error.delete_code == true %}
+    <div>削除コードが違います。</div>
+    {% endif %}
+    {% if message.success == true %}
+    <div>書き込みました。</div>
+    {% endif %}
+    {% if message.delete == true %}
+    <div>削除しました。</div>
+    {% endif %}
+    <form action="./write.php" method="post">
+      タイトル<input name="title"  value="{{ datum.title }}"><br>
+      投稿者名<input name="name"  value="{{ datum.name }}"><br>
+      削除コード<input name="delete_code"  value="{{ datum.delete_code }}"><br>
+      本文<textarea name="body">{{ datum.body }}</textarea><br>
+      <button>投稿</button>
+    </form>
+    <hr>
+    {% if newer_page > 0 %}
+    <a href="./index.php?p={{ newer_page }}">＜＜より新しい投稿＜＜</a>
+    {% endif %}
+    | 
+    {% if older_flg == true %}
+    <a href="./index.php?p={{ older_page }}">＞＞より古い投稿＞＞</a>
+    {% endif %}
+    <br>
+{% for v in bbs_data %}
+    <hr>
+    <a name="id_{{ v.bbs_id }}">
+    {{ v.title }} ({{ v.name }}) {{ v.created_at }}<br>
+    {{ v.body | nl2br }}
+    <form action="./delete.php" method="post">
+    <input type="hidden" name="bbs_id" value="{{ v.bbs_id }}">
+    <input name="delete_code" placeholder="削除コード">
+    <button>削除</button>
+    </form>
+    <h4>一行コメント</h4>
+    <form action="./online_comment.php" method="post">
+    <input type="hidden" name="bbs_id" value="{{ v.bbs_id }}">
+    <input type="hidden" name="p" value="{{ now_page }}">
+    <input name="comment" placeholder="コメント">
+    <button>コメントを投稿する</button>
+    </form>
+    {% for comment in v.oneline_comment %}
+        ・{{ comment.comment_body }} ({{ comment.created_at }})<br>
+    {% endfor %}
+{% endfor %}
+    <hr>
+    
+  </body>
+</html>
